@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lap Timer</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+</head>
+<body>
+
+<div id="app">
+  <div class="lap-timer">
+    <h1>{{ formattedTime }}</h1>
+    <button @click="startStopTimer">{{ timerRunning ? 'Stop' : 'Start' }}</button>
+    <button @click="recordLap" :disabled="!timerRunning">Lap</button>
+    <button @click="resetTimer">Reset</button>
+    <ul class="lap-list">
+
+        <h2>Laps</h2>
+
+      <li v-for="(lap, index) in laps" :key="index">Lap {{ index + 1 }}: {{ formatTime(lap) }}</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+  
+new Vue({
+  el: '#app',
+  data: {
+    timerRunning: false,
+    startTime: 0,
+    currentTime: 0,
+    laps: [],
+    
+  },
+  computed: {
+    formattedTime() {
+      return this.formatTime(this.currentTime);
+    },
+  },
+  methods: {
+    startStopTimer() {
+      if (this.timerRunning) {
+        // Stop the timer
+        clearInterval(this.timerInterval);
+        this.timerRunning = false;
+      } else {
+        // Start the timer
+        this.startTime = Date.now() - this.currentTime;
+        this.timerInterval = setInterval(this.updateTimer, 100);
+        this.timerRunning = true;
+      }
+    
+    },
+    updateTimer() {
+      this.currentTime = Date.now() - this.startTime;
+    },
+    recordLap() {
+      this.laps.push(this.currentTime);
+    },
+    resetTimer() {
+      // Reset the timer and laps
+      clearInterval(this.timerInterval);
+      this.timerRunning = false;
+      this.startTime = 0;
+      this.currentTime = 0;
+      this.laps = [];
+    },
+    formatTime(time) {
+      const minutes = Math.floor(time / 60000);
+      const seconds = ((time % 60000) / 1000).toFixed(2);
+      return `${minutes}:${seconds.padStart(5, '0')}`;
+    },
+  },
+});
+</script>
+
+<style>
+  #app {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  .lap-timer {
+    text-align: center;
+  }
+
+  .lap-list {
+    list-style: none;
+    padding: 0;
+  }
+
+  button {
+    margin-top: 10px;
+  }
+</style>
+
+</body>
+</html>
